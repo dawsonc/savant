@@ -6,7 +6,7 @@ Savant is an artificial neural network system for analyzing and predicting chang
 30,000-foot overview
 --------------------
 
-Objective: Given historical market data, predict future changes in the SPY ETF (which models the S&P 500 index)
+Objective: Given historical market data, predict the future price of the SPY ETF (which models the S&P 500 index)
 
 Indicators:
     + SPY (last 30 days)
@@ -26,4 +26,12 @@ Modules
 -------
 
 + `spy.py` contains the code for retrieving historical price data from the Yahoo Finance API.
-+ `tailor.py` contains the code for extracting relevant data from the data retrieved by `retriever.py` & constructing feature vectors and matrices
++ `tailor.py` contains the code for extracting relevant data from the data retrieved by `retriever.py` & constructing feature vectors and matrices.
++ `soldier.py` contains the actual neural network code for running forward- and back-propagation.
++ `tinker.py` contains the functions for training the network and making new predictions.
++ `circus.py` contains the central script for getting data, training the network, cross-validating, and so-on.
+
+Miscellany
+----------
+
++ Although many comments refer to objects as "matrices", those objects are actually `numpy.ndarray`s. The phrase "matrix" is used only in the mathematical sense.

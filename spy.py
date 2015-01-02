@@ -4,6 +4,7 @@ import pandas
 
 BASE_URL = "https://ichart.yahoo.com/table.csv?s="
 
+
 def get_historical_data(symbol):
     """Gets all available historical data for the given symbol
 
