@@ -5,7 +5,7 @@ import soldier
 
 def convert_labels(label, num_labels):
     label_vec = np.zeros((1, num_labels))
-    label_vec[0, label-1] = 1
+    label_vec[0, label - 1] = 1
     return label_vec
 
 
@@ -54,8 +54,9 @@ costf = lambda params: nn.cost(X, Y, params)
 cost, gradient = costf(nn_params)
 numgrad = compute_numerical_gradient(costf, nn_params)
 
-print("Grad   NumGrad")
+print("AnalyticalGrad   NumericalGrad")
 for i in range(numgrad.size):
     print("%s  %s" % (gradient[i], numgrad[i]))
 diff = linalg.norm(numgrad - gradient) / linalg.norm(numgrad + gradient)
-print("Relative difference between analytical and numerical gradients: %s" % diff)
+print("Relative difference between analytical and numerical gradients: %s" %
+      diff)
