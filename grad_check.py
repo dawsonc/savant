@@ -1,10 +1,13 @@
 import numpy as np
+from scipy import linalg
 import soldier
 
 
-def convert_labels(label):
+def convert_labels(label, num_labels):
     label_vec = np.zeros((1, num_labels))
-    label_vec(label) = 1
+    label_vec[0, label-1] = 1
+    return label_vec
+
 
 def compute_numerical_gradient(costf, nn_params):
     numgrad = np.zeros(nn_params.shape)
@@ -14,7 +17,7 @@ def compute_numerical_gradient(costf, nn_params):
         perturb[p] = e
         loss1 = costf(nn_params - perturb)[0]
         loss2 = costf(nn_params + perturb)[0]
-        numgrad[p] = (loss1 - loss) / (2*e)
+        numgrad[p] = (loss2 - loss1) / (2 * e)
         perturb[p] = 0
     return numgrad
 
@@ -35,7 +38,7 @@ X = soldier.NeuralNetwork.random_initial_weights(input_layer_size - 1, m)
 
 # Generate labels
 y = 1 + np.linspace(1, m, m) % num_labels
-Y = map(convert_labels, y)
+Y = [convert_labels(label, num_labels) for label in y]
 
 # Unroll parameters
 nn_params = np.concatenate((theta1.ravel(), theta2.ravel()))
@@ -50,3 +53,9 @@ costf = lambda params: nn.cost(X, Y, params)
 
 cost, gradient = costf(nn_params)
 numgrad = compute_numerical_gradient(costf, nn_params)
+
+print("Grad   NumGrad")
+for i in range(numgrad.size):
+    print("%s  %s" % (gradient[i], numgrad[i]))
+diff = linalg.norm(numgrad - gradient) / linalg.norm(numgrad + gradient)
+print("Relative difference between analytical and numerical gradients: %s" % diff)

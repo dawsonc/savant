@@ -139,9 +139,7 @@ theta1 and theta2
         D2 = np.zeros(theta2.shape)
         for i in range(num_examples):
             # Compute output error
-            delta3 = (hypotheses[i] - labels[i])
-            # Manually "transpose" it into a column vector
-            delta3.shape = (delta3.shape[0], 1)
+            delta3 = (hypotheses[i] - labels[i]).T
 
             # Backprop to hidden layer
             # . removing error for bias unit as we go
