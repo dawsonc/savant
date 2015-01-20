@@ -61,7 +61,16 @@ neurons
         self.output_activation_func_gradient = output_activation_func_gradient
 
     def train(self, indicators, labels):
-        pass
+        print("Beginning training")
+        print("Number of examples: %s" % indicators.shape[0])
+        print("Number of features: %s" % indicators.shape[1])
+
+        options = {'maxiter': 100, 'disp': True}
+        nn_params = np.concatenate((self.theta1.ravel(), self.theta2.ravel()))
+        costf = lambda params: self.cost(indicators, labels, params)
+        result = optimize.minimize(costf, nn_params, jac=True, options=options)
+
+        print("Result: %s\nMessage: %s" % (result.success, result.message))
 
     def predict(self, indicators):
         pass
@@ -119,19 +128,16 @@ theta1 and theta2
 
         # Part Ib: Cost Function
 
-        # Iterate over the examples to sum the cost
-        cost = 0
-        for i in range(num_examples):
-            label = labels[i]
-            hypothesis = hypotheses[i]
-
-            cost += np.sum((-1 * label) * np.log(hypothesis) -
-                           (1 - label) * np.log(1 - hypothesis))
-        cost *= 1 / num_examples
+        # Sum the cost
+        cost = np.sum((-1 * labels) * np.log(hypotheses) -
+                      (1 - labels) * np.log(1 - hypotheses))
+        cost *= (1 / num_examples)
 
         # Add regularization
         cost += self.reg / (2 * num_examples) * \
-            (np.sum(theta1[:, 1:]**2) + np.sum(theta2[:, 1:]**2))
+            (np.sum(theta1[:, 1:] ** 2) + np.sum(theta2[:, 1:] ** 2))
+
+        return (cost, 1)
 
         # Part II: Backpropogation
         # Vectorization will come later ;)
@@ -139,24 +145,21 @@ theta1 and theta2
         D2 = np.zeros(theta2.shape)
         for i in range(num_examples):
             # Compute output error
-            delta3 = (hypotheses[i] - labels[i]).T
+            delta3 = np.vstack(hypotheses[i] - labels[i])
 
             # Backprop to hidden layer
             # . removing error for bias unit as we go
-            z_hidden_col = z_hidden[i]
-            z_hidden_col.shape = (z_hidden_col.shape[0], 1)
+            z_hidden_col = np.vstack(z_hidden[i])
             delta2 = (theta2.T.dot(delta3))[1:] * \
                 self.activation_function_gradient(z_hidden_col)
 
             # Accumulate the little deltas into the big Deltas (crystal clear,
             # right?)
-            indicator = indicators[i]
-            indicator.shape = (1, indicator.shape[0])
-            D1 += delta2.dot(indicator)
+            indicator = np.vstack(indicators[i])
+            D1 += delta2.dot(indicator.T)
 
-            activation = activation_hidden[i]
-            activation.shape = (1, activation.shape[0])
-            D2 += delta3.dot(activation)
+            activation = np.vstack(activation_hidden[i])
+            D2 += delta3.dot(activation.T)
         # Scale and regularize
         theta1_grad = np.zeros(theta1.shape)
         theta2_grad = np.zeros(theta2.shape)

@@ -11,3 +11,4 @@ __pycache__/
 # Sublime Text Stuff
 *.sublime-project
 *.sublime-workspace
+.swp

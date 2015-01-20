@@ -55,3 +55,12 @@ must be kept consistent across all calls to this function, or else the \
 training data will be inconsistently formatted, and thus rendered meaningless
     """
     return np.concatenate(feature_vectors)
+
+
+def normalize(data, means, stds):
+    """Applies mean normalization and feature scaling to the given data"""
+    data_norm = data
+    num_features = data.shape[1]
+    for i in range(num_features):
+        data_norm[:, i] = (data[:, i] - means[i]) / stds[i]
+    return data_norm

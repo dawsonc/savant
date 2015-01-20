@@ -1,11 +1,14 @@
+"""Computes numerical gradient of cost function and compares it to the \
+analytical gradient returned by the cost function"""
+
 import numpy as np
 from scipy import linalg
 import soldier
 
 
 def convert_labels(label, num_labels):
-    label_vec = np.zeros((1, num_labels))
-    label_vec[0, label - 1] = 1
+    label_vec = np.zeros((num_labels,))
+    label_vec[label - 1] = 1
     return label_vec
 
 
@@ -22,7 +25,7 @@ def compute_numerical_gradient(costf, nn_params):
     return numgrad
 
 # Network parameters
-reg = 0
+reg = 10
 input_layer_size = 3
 hidden_layer_size = 5
 num_labels = 3
@@ -38,7 +41,7 @@ X = soldier.NeuralNetwork.random_initial_weights(input_layer_size - 1, m)
 
 # Generate labels
 y = 1 + np.linspace(1, m, m) % num_labels
-Y = [convert_labels(label, num_labels) for label in y]
+Y = np.array([convert_labels(label, num_labels) for label in y])
 
 # Unroll parameters
 nn_params = np.concatenate((theta1.ravel(), theta2.ravel()))
@@ -60,3 +63,4 @@ for i in range(numgrad.size):
 diff = linalg.norm(numgrad - gradient) / linalg.norm(numgrad + gradient)
 print("Relative difference between analytical and numerical gradients: %s" %
       diff)
+print("This difference should be extremely low (less than 1e-9)")
