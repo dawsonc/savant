@@ -64,7 +64,8 @@ neurons
         options = {'maxiter': 100, 'disp': True}
         nn_params = np.concatenate((self.theta1.ravel(), self.theta2.ravel()))
         costf = lambda params: self.cost(indicators, labels, params)
-        result = optimize.minimize(costf, nn_params, jac=True, options=options)
+        result = optimize.minimize(costf, nn_params, jac=True, method='TNC',
+            options=options)
 
         print("Result: %s\nMessage: %s" % (result.success, result.message))
 
@@ -151,42 +152,8 @@ theta1 and theta2
         theta2_grad[:, 1:] = 1/num_examples * D2[:, 1:] + \
             self.reg/num_examples * theta2[:, 1:]
 
-        # # Unvectorized code commented out below
-        # D1 = np.zeros(theta1.shape)
-        # D2 = np.zeros(theta2.shape)
-        # for i in range(num_examples):
-        #     # Compute output error
-        #     delta3 = np.vstack(hypotheses[i] - labels[i])
-
-        #     # Backprop to hidden layer
-        #     # . removing error for bias unit as we go
-        #     z_hidden_col = np.vstack(z_hidden[i])
-        #     delta2 = (theta2.T.dot(delta3))[1:] * \
-        #         self.activation_function_gradient(z_hidden_col)
-
-        #     # Accumulate the little deltas into the big Deltas (crystal clear,
-        #     # right?)
-        #     indicator = np.vstack(indicators[i])
-        #     D1 += delta2.dot(indicator.T)
-
-        #     activation = np.vstack(activation_hidden[i])
-        #     D2 += delta3.dot(activation.T)
-        # # Scale and regularize
-        # theta1_grad = np.zeros(theta1.shape)
-        # theta2_grad = np.zeros(theta2.shape)
-        # # Don't regularize bias term
-        # theta1_grad[:, 0] = 1 / num_examples * D1[:, 0]
-        # theta2_grad[:, 0] = 1 / num_examples * D2[:, 0]
-        # # Regularize everything else
-        # theta1_grad[:, 1:] = 1 / num_examples * D1[:, 1:] + \
-        #     self.reg / num_examples * theta1[:, 1:]
-        # theta2_grad[:, 1:] = 1 / num_examples * D2[:, 1:] + \
-        #     self.reg / num_examples * theta2[:, 1:]
-        # # End unvectorized code
-
         # Unroll gradients
         gradients = np.concatenate((theta1_grad.ravel(), theta2_grad.ravel()))
-        print("Cost: %s" % cost)
         return (cost, gradients)
 
 
