@@ -61,10 +61,6 @@ neurons
         self.output_activation_func_gradient = output_activation_func_gradient
 
     def train(self, indicators, labels):
-        print("Beginning training")
-        print("Number of examples: %s" % indicators.shape[0])
-        print("Number of features: %s" % indicators.shape[1])
-
         options = {'maxiter': 100, 'disp': True}
         nn_params = np.concatenate((self.theta1.ravel(), self.theta2.ravel()))
         costf = lambda params: self.cost(indicators, labels, params)
@@ -137,43 +133,60 @@ theta1 and theta2
         cost += self.reg / (2 * num_examples) * \
             (np.sum(theta1[:, 1:] ** 2) + np.sum(theta2[:, 1:] ** 2))
 
-        return (cost, 1)
-
         # Part II: Backpropogation
-        # Vectorization will come later ;)
-        D1 = np.zeros(theta1.shape)
-        D2 = np.zeros(theta2.shape)
-        for i in range(num_examples):
-            # Compute output error
-            delta3 = np.vstack(hypotheses[i] - labels[i])
+        # Vectorized :)
+        delta3 = (hypotheses - labels)
+        delta2 = np.dot(delta3, theta2)
+        delta2 = delta2[:, 1:] * self.activation_function_gradient(z_hidden)
+        D1 = np.dot(indicators.T, delta2).T
+        D2 = np.dot(activation_hidden.T, delta3).T
 
-            # Backprop to hidden layer
-            # . removing error for bias unit as we go
-            z_hidden_col = np.vstack(z_hidden[i])
-            delta2 = (theta2.T.dot(delta3))[1:] * \
-                self.activation_function_gradient(z_hidden_col)
-
-            # Accumulate the little deltas into the big Deltas (crystal clear,
-            # right?)
-            indicator = np.vstack(indicators[i])
-            D1 += delta2.dot(indicator.T)
-
-            activation = np.vstack(activation_hidden[i])
-            D2 += delta3.dot(activation.T)
-        # Scale and regularize
         theta1_grad = np.zeros(theta1.shape)
         theta2_grad = np.zeros(theta2.shape)
-        # Don't regularize bias term
-        theta1_grad[:, 0] = 1 / num_examples * D1[:, 0]
-        theta2_grad[:, 0] = 1 / num_examples * D2[:, 0]
-        # Regularize everything else
-        theta1_grad[:, 1:] = 1 / num_examples * D1[:, 1:] + \
-            self.reg / num_examples * theta1[:, 1:]
-        theta2_grad[:, 1:] = 1 / num_examples * D2[:, 1:] + \
-            self.reg / num_examples * theta2[:, 1:]
+        # Regularize (except for bias term)
+        theta1_grad[:, 0] = 1/num_examples * D1[:, 0]
+        theta1_grad[:, 1:] = 1/num_examples * D1[:, 1:] + \
+            self.reg/num_examples * theta1[:, 1:]
+        theta2_grad[:, 0] = 1/num_examples * D2[:, 0]
+        theta2_grad[:, 1:] = 1/num_examples * D2[:, 1:] + \
+            self.reg/num_examples * theta2[:, 1:]
+
+        # # Unvectorized code commented out below
+        # D1 = np.zeros(theta1.shape)
+        # D2 = np.zeros(theta2.shape)
+        # for i in range(num_examples):
+        #     # Compute output error
+        #     delta3 = np.vstack(hypotheses[i] - labels[i])
+
+        #     # Backprop to hidden layer
+        #     # . removing error for bias unit as we go
+        #     z_hidden_col = np.vstack(z_hidden[i])
+        #     delta2 = (theta2.T.dot(delta3))[1:] * \
+        #         self.activation_function_gradient(z_hidden_col)
+
+        #     # Accumulate the little deltas into the big Deltas (crystal clear,
+        #     # right?)
+        #     indicator = np.vstack(indicators[i])
+        #     D1 += delta2.dot(indicator.T)
+
+        #     activation = np.vstack(activation_hidden[i])
+        #     D2 += delta3.dot(activation.T)
+        # # Scale and regularize
+        # theta1_grad = np.zeros(theta1.shape)
+        # theta2_grad = np.zeros(theta2.shape)
+        # # Don't regularize bias term
+        # theta1_grad[:, 0] = 1 / num_examples * D1[:, 0]
+        # theta2_grad[:, 0] = 1 / num_examples * D2[:, 0]
+        # # Regularize everything else
+        # theta1_grad[:, 1:] = 1 / num_examples * D1[:, 1:] + \
+        #     self.reg / num_examples * theta1[:, 1:]
+        # theta2_grad[:, 1:] = 1 / num_examples * D2[:, 1:] + \
+        #     self.reg / num_examples * theta2[:, 1:]
+        # # End unvectorized code
 
         # Unroll gradients
         gradients = np.concatenate((theta1_grad.ravel(), theta2_grad.ravel()))
+        print("Cost: %s" % cost)
         return (cost, gradients)
 
 

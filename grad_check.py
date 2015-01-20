@@ -29,7 +29,7 @@ reg = 10
 input_layer_size = 3
 hidden_layer_size = 5
 num_labels = 3
-m = 5
+m = 7
 
 # Generate pseudo-random test data
 theta1 = soldier.NeuralNetwork.random_initial_weights(input_layer_size,
