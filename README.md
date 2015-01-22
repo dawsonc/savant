@@ -8,7 +8,7 @@ Savant is an artificial neural network system for analyzing and predicting chang
 
 Objective: Given historical market data, predict the future price of the SPY ETF (which models the S&P 500 index)
 
-Indicators:
+Possible Indicators (to be modified later pending cross-validation):
     + SPY (last 30 days)
         * An ETF that models the S&P 500 index
     + USO (last 30 days)

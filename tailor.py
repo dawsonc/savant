@@ -25,25 +25,23 @@ a particular security
 partial feature vector
                     Note: 0 is the most recent row, higher indices are further\
 in the past
-        k     --- integer indicating the number of preceeding rows to include \
-in the feature vector
+        k     --- integer indicating the total number of rows to include \
+in the feature vector, starting at the specified index
 
     Returns the tuple (features, result) such that:
-        features is a numpy array containing the prices for days `index + 30` \
-through `index + 1`
-            Note: as the final feature vector contains historical data for \
-multiple indicators, `features` is only a partial feature vector and needs to \
-be composited with the partial feature vectors for the other indicators in \
-order to construct the full feature vector
-        result is an double containing the price for day `index`
+        features is a numpy array containing the prices for days `index + k` \
+through `index` or None if there is not enough data
+        result is the price for the day `index`
     """
-    result = data[index]
-
     starting_index = index + 1
     end_index = index + k
-    features = data[starting_index:end_index + 1].as_matrix()
 
-    return (features, result)
+    if end_index < data.size:
+        features = data[starting_index:end_index + 1].as_matrix()
+    else:
+        features = None
+
+    return (features, data[index])
 
 
 def construct_full_feature_vector(feature_vectors):

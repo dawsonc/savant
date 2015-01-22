@@ -101,12 +101,17 @@ theta1 and theta2
         indicators, z_hidden, activation_hidden, z_output, hypotheses \
             = self._feedforward(indicators, theta1, theta2)
 
+        print("Avg Hypothesis: ", np.std(hypotheses))
+
         # Part Ib: Cost Function
 
         # Sum the cost
-        cost = np.sum((-1 * labels) * np.log(hypotheses) -
-                      (1 - labels) * np.log(1 - hypotheses))
-        cost *= (1 / num_examples)
+        # # Cost function for sigmoid activation output
+        # cost = np.sum((-1 * labels) * np.log(hypotheses) -
+        #               (1 - labels) * np.log(1 - hypotheses))
+        # Cost function for "normal" activation output
+        cost = np.sum((hypotheses - labels) ** 2)
+        cost *= 1 / (2*num_examples)
 
         # Add regularization
         cost += self.reg / (2 * num_examples) * \
@@ -114,7 +119,7 @@ theta1 and theta2
 
         # Part II: Backpropogation
         # Vectorized :)
-        delta3 = (hypotheses - labels)
+        delta3 = (hypotheses - np.vstack(labels))
         delta2 = np.dot(delta3, theta2)
         delta2 = delta2[:, 1:] * self.activation_function_gradient(z_hidden)
         D1 = np.dot(indicators.T, delta2).T
