@@ -62,3 +62,18 @@ def normalize(data, means, stds):
     for i in range(num_features):
         data_norm[:, i] = (data[:, i] - means[i]) / stds[i]
     return data_norm
+
+
+def holt_winters_ewma(x, span, beta, iterations=1):
+    """Apply Holt-Winter Exponential Weighted Moving Average to x"""
+    if iterations <= 0:
+        return x
+    N = x.size
+    alpha = 2.0 / (1 + span)
+    s = np.zeros((N, ))
+    b = np.zeros((N, ))
+    s[0] = x[0]
+    for i in range(1, N):
+        s[i] = alpha * x[i] + (1 - alpha) * (s[i - 1] + b[i - 1])
+        b[i] = beta * (s[i] - s[i - 1]) + (1 - beta) * b[i - 1]
+    return holt_winters_ewma(s, span, beta, iterations - 1)

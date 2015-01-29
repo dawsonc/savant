@@ -4,6 +4,7 @@ This is where the magic happens. I'll walk you through it below
 """
 
 import numpy as np
+import pandas
 
 import tailor
 import soldier
@@ -14,7 +15,7 @@ import spy
 ## (for stock data)
 PRIMARY_SYMBOL = "SPY"
 # The number of previous days to include in the feature vector
-NUM_PREV_DAYS = 60
+NUM_PREV_DAYS = 30
 # A list of tuples giving other indices to track and how many days of each
 # . to include in the feature vector
 # .. e.g. [('AAPL', 10), ('GOOG', 20)] to include the past 10 days of AAPL
@@ -24,7 +25,7 @@ ADDITIONAL_SYMBOLS = [] # NOT YET SUPPORTED
 COLNAME = 'Adj Close'
 
 ## (for neural network)
-NUM_HIDDEN_UNITS = 120
+NUM_HIDDEN_UNITS = 25
 NUM_OUTPUTS = 1
 
 ## (for the sake of science)
@@ -38,6 +39,19 @@ raw_data = spy.get_historical_data(PRIMARY_SYMBOL)
 # Pass the data to the tailor to trim it
 raw_data = tailor.reduce_to_column(raw_data, COLNAME)
 
+# Smooth with Holt-Winters
+raw_data = pandas.Series(tailor.holt_winters_ewma(raw_data, 10, 0.3, 1)[:4629])
+
+# Convert to % change
+# First reverse the data so that the average goes forward in time
+raw_data = pandas.Series(list(reversed(raw_data)))
+# Compute % change
+raw_data = raw_data.pct_change()
+# Back into original format
+raw_data = pandas.Series(list(reversed(raw_data)))
+# Drop last element (which is NaN)
+raw_data = raw_data[:-1]
+
 # Then construct feature vectors from the data
 # First get primary symbol data
 print("Constructing feature vectors...")
@@ -50,16 +64,9 @@ data = np.array(
 data = np.array([x for x in data[1:] if x[0] is not None])
 # Now `data` contains tuples of (indicators, price)
 
-# Uncomment if you want to train to predict tomorrow's price
-prepped_data = data
-
-# Uncomment below if you want to predict whether price will increase or not
-# # Convert `data` to tuples of (indicators, change)
-# # . where `change` is 1 if price is greater than the 1st element of indicators
-# # .. and 0 otherwise
-# # Sorry for this vvv
-# prepped_data = np.array([(day[0], 1) if day[1] > day[0][0] \
-#             else (day[0], 0) for day in data])
+# Now generate Buy/Sell ratings for each day to use as output labels
+# 1 for buy, 0 for sell
+prepped_data = np.array([(x[0], 1) if x[1] > 0 else (x[0], 0) for x in data])
 
 ### WATCH THIS SPACE: SECONDARY SYMBOL SUPPORT COMING SOON ###
 
@@ -83,8 +90,8 @@ input_layer_size = NUM_PREV_DAYS
 hidden_layer_size = NUM_HIDDEN_UNITS
 num_labels = NUM_OUTPUTS
 reg = 0
-output_func = lambda x: x
-output_func_gradient = lambda x: np.ones(x.shape)
+output_func = soldier.sigmoid
+output_func_gradient = soldier.sigmoid_gradient
 nn = soldier.NeuralNetwork(input_layer_size, hidden_layer_size, num_labels,
                            reg,
                            soldier.sigmoid, soldier.sigmoid_gradient,
@@ -97,3 +104,4 @@ print("Training neural network...")
 training_indicators = np.array([day[0] for day in training_data])
 training_labels = np.array([day[1] for day in training_data])
 nn.train(training_indicators, training_labels)
+print("Mean of training labels: ", training_labels.mean())
