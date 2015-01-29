@@ -3,7 +3,12 @@ analytical gradient returned by the cost function"""
 
 import numpy as np
 from scipy import linalg
-import soldier
+
+# Needed to access top-level stuff
+import sys
+sys.path.append('/Users/Charles/progs/ml/final/savant')
+
+from circus import soldier
 
 
 def convert_labels(label, num_labels):

@@ -101,9 +101,6 @@ theta1 and theta2
         indicators, z_hidden, activation_hidden, z_output, hypotheses \
             = self._feedforward(indicators, theta1, theta2)
 
-        print("Some Hypotheses: ", hypotheses[-10:-1])
-        print("Hypothesis std dev: ", np.std(hypotheses))
-
         # Part Ib: Cost Function
 
         # Sum the cost

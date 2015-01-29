@@ -3,7 +3,11 @@
 from scipy.io import loadmat
 import numpy as np
 
-import soldier
+# Needed to access top-level stuff
+import sys
+sys.path.append('/Users/Charles/progs/ml/final/savant')
+
+from circus import soldier
 
 print("Training on subset of MNIST Handwritten Digits dataset")
 

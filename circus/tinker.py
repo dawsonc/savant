@@ -40,7 +40,7 @@ raw_data = spy.get_historical_data(PRIMARY_SYMBOL)
 raw_data = tailor.reduce_to_column(raw_data, COLNAME)
 
 # Smooth with Holt-Winters
-raw_data = pandas.Series(tailor.holt_winters_ewma(raw_data, 10, 0.3, 1)[:4629])
+raw_data = pandas.Series(tailor.holt_winters_ewma(raw_data, 10, 0.3, 1))
 
 # Convert to % change
 # First reverse the data so that the average goes forward in time
@@ -104,4 +104,3 @@ print("Training neural network...")
 training_indicators = np.array([day[0] for day in training_data])
 training_labels = np.array([day[1] for day in training_data])
 nn.train(training_indicators, training_labels)
-print("Mean of training labels: ", training_labels.mean())

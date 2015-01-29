@@ -3,7 +3,11 @@
 from scipy.io import loadmat
 import numpy as np
 
-import soldier
+# Needed to access top-level stuff
+import sys
+sys.path.append('/Users/Charles/progs/ml/final/savant')
+
+from circus import soldier
 
 # Setup parameters
 input_layer_size = 400
@@ -16,9 +20,11 @@ training_data = np.array(data["X"])
 training_labels = np.array(data["y"])
 
 # Reformat training labels
+
+
 def format_label(label):
     new_label = np.zeros((10,))
-    new_label[label[0]-1] = 1
+    new_label[label[0] - 1] = 1
     return new_label
 training_labels = np.array(list(map(format_label, training_labels)))
 

@@ -1,6 +1,11 @@
 import numpy as np
-import tailor
 import matplotlib.pyplot as plt
+
+# Needed to access top-level stuff
+import sys
+sys.path.append('/Users/Charles/progs/ml/final/savant')
+
+from circus import tailor
 
 # make a hat function, and add noise
 x = np.linspace(0, 1, 100)
