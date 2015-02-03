@@ -13,7 +13,7 @@ print("Training on subset of MNIST Handwritten Digits dataset")
 
 # Load data
 print("Loading data...")
-data_dict = loadmat("./data/test/ex4data1.mat")
+data_dict = loadmat("./data/test_data/ex4data1.mat")
 data = np.array(data_dict["X"])
 labels = np.array(data_dict["y"])
 

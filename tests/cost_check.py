@@ -3,7 +3,7 @@
 from scipy.io import loadmat
 import numpy as np
 
-# Needed to access top-level stuff
+# Needed to access sibling modules
 import sys
 sys.path.append('/Users/Charles/progs/ml/final/savant')
 
@@ -15,7 +15,7 @@ hidden_layer_size = 25
 num_labels = 10
 
 # Load data
-data = loadmat("./data/test/ex4data1.mat")
+data = loadmat("./data/test_data/ex4data1.mat")
 training_data = np.array(data["X"])
 training_labels = np.array(data["y"])
 
@@ -29,7 +29,7 @@ def format_label(label):
 training_labels = np.array(list(map(format_label, training_labels)))
 
 # Load saved Neural Network params
-params = loadmat("./data/test/ex4weights.mat")
+params = loadmat("./data/test_data/ex4weights.mat")
 theta1 = params['Theta1']
 theta2 = params['Theta2']
 nn_params = np.concatenate((theta1.ravel(), theta2.ravel()))
