@@ -6,6 +6,8 @@ Also performs train/cross-validation/test split
 import numpy as np
 import scipy.io
 
+from datetime import datetime
+
 # Needed to access sibling modules
 import sys
 sys.path.append('/Users/Charles/progs/ml/final/savant')
@@ -50,9 +52,9 @@ def recommendations(x):
     recommendation = []
     if pct_change >= 0.5 / 100:
         recommendation = [1, 0, 0]
-    elif -0.5 / 100 < pct_change and pct_change < 0.5 / 100:
+    elif abs(pct_change) < 0.5 / 100:
         recommendation = [0, 1, 0]
-    elif 0.5 / 100 <= pct_change:
+    elif pct_change <= -0.5 / 100:
         recommendation = [0, 0, 1]
 
     return np.array(recommendation)
@@ -78,3 +80,7 @@ scipy.io.savemat("data/stock_data.mat", {"training_data": training_data,
                                          "cv_data": cv_data,
                                          "test_data": test_data
                                          }, appendmat=False)
+
+print("Saving logfile...")
+with open('data/log.txt', 'a') as logfile:
+    logfile.write("Retrieved & shuffled on %s\n" % (datetime.now()))

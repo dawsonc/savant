@@ -45,7 +45,7 @@ neurons
 
     def train(self, indicators, labels):
         # Train
-        options = {'maxiter': 100, 'disp': True}
+        options = {'maxiter': 100, 'disp': False}
         nn_params = np.concatenate((self.theta1.ravel(), self.theta2.ravel()))
         costf = lambda params: self.cost(indicators, labels, params)
         result = optimize.minimize(costf, nn_params, jac=True, method='TNC',
@@ -105,9 +105,6 @@ theta1 and theta2
 
         # Sum the cost
         # Cost function for sigmoid activation output
-        # cost = np.sum((-1 * labels) * np.log(hypotheses) -
-        #               (1 - labels) * np.log(1 - hypotheses))
-        # Cost function for "normal" activation output
         cost = np.sum((-1 * labels) * np.log(hypotheses) -
                       (1 - labels) * np.log(1 - hypotheses))
         cost *= (1 / num_examples)

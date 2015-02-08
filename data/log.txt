@@ -1,0 +1,3 @@
+This file contains a list of when new snapshots of market data were taken.
+More recent snapshots appear last.
+Retrieved & shuffled on 2015-02-08 01:26:56.483661
