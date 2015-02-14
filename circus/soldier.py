@@ -45,7 +45,7 @@ neurons
 
     def train(self, indicators, labels):
         # Train
-        options = {'maxiter': 100, 'disp': False}
+        options = {'maxiter': 2000, 'disp': False}
         nn_params = np.concatenate((self.theta1.ravel(), self.theta2.ravel()))
         costf = lambda params: self.cost(indicators, labels, params)
         result = optimize.minimize(costf, nn_params, jac=True, method='TNC',
@@ -194,7 +194,6 @@ of connections
             outgoing_connections, incoming_connections + 1)
         weights = weights * (2 * epsilon) - epsilon
         return weights
-
 
 def sigmoid(z):
     """Computes the output of the sigmoid function for the input z"""

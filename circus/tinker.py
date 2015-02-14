@@ -18,16 +18,17 @@ class Tinker(object):
         self.data_dict = scipy.io.loadmat(path_to_data)
 
     @staticmethod
-    def accuracy(predictions, labels):
-        """Returns the % accuracy of the network on the given examples"""
-        pct_accuracy = np.mean(np.double(np.equal(predictions, labels))) * 100
+    def error(predictions, labels):
+        """Returns the % error of the network on the given examples"""
+        pct_error = 1 - np.mean(np.double(np.equal(predictions, labels)))
+        pct_error = pct_error * 100
 
-        return pct_accuracy
+        return pct_error
 
-    def baseline1(self):
+    def baseline(self):
         """A baseline test that always "predicts" buy ([1, 0, 0])
 
-        Returns a list of [training_accuracy, cv_accuracy, test_accuracy"""
+        Returns a list of [training_error, cv_error, test_error"""
         # Load training, cv, and test
         self.data = [None] * 3
         # data[0] = training, data[1] = cv, data[2] = test
@@ -43,82 +44,29 @@ class Tinker(object):
             self.labels[i] = np.vstack([x[1] for x in dataset])
 
         training_predictions = np.vstack([[1, 0, 0] for x in self.labels[0]])
-        training_accuracy = Tinker.accuracy(
+        training_error = Tinker.error(
             training_predictions, self.labels[0])
         cv_predictions = np.vstack([[1, 0, 0] for x in self.labels[1]])
-        cv_accuracy = Tinker.accuracy(cv_predictions, self.labels[1])
+        cv_error = Tinker.error(cv_predictions, self.labels[1])
         test_predictions = np.vstack([[1, 0, 0] for x in self.labels[2]])
-        test_accuracy = Tinker.accuracy(test_predictions, self.labels[2])
+        test_error = Tinker.error(test_predictions, self.labels[2])
 
-        return [training_accuracy, cv_accuracy, test_accuracy]
+        return [training_error, cv_error, test_error]
 
-    def baseline1(self):
-        """A baseline test that always "predicts" ([1, 1, 1])
-
-        Returns a list of [training_accuracy, cv_accuracy, test_accuracy"""
-        # Load training, cv, and test
-        self.data = [None] * 3
-        # data[0] = training, data[1] = cv, data[2] = test
-        self.data[0] = self.data_dict["training_data"]
-        self.data[1] = self.data_dict["cv_data"]
-        self.data[2] = self.data_dict["test_data"]
-
-        # Extract labels and indicators
-        self.indicators = [None] * 3
-        self.labels = [None] * 3
-        for i, dataset in enumerate(self.data):
-            self.indicators[i] = np.vstack([x[0] for x in dataset])
-            self.labels[i] = np.vstack([x[1] for x in dataset])
-
-        training_predictions = np.vstack([[1, 1, 1] for x in self.labels[0]])
-        training_accuracy = Tinker.accuracy(
-            training_predictions, self.labels[0])
-        cv_predictions = np.vstack([[1, 1, 1] for x in self.labels[1]])
-        cv_accuracy = Tinker.accuracy(cv_predictions, self.labels[1])
-        test_predictions = np.vstack([[1, 1, 1] for x in self.labels[2]])
-        test_accuracy = Tinker.accuracy(test_predictions, self.labels[2])
-
-        return [training_accuracy, cv_accuracy, test_accuracy]
-
-    def baseline2(self):
-        """A baseline test that always "predicts" buy ([1, 0, 0])
-
-        Returns a list of [training_accuracy, cv_accuracy, test_accuracy"""
-        # Load training, cv, and test
-        self.data = [None] * 3
-        # data[0] = training, data[1] = cv, data[2] = test
-        self.data[0] = self.data_dict["training_data"]
-        self.data[1] = self.data_dict["cv_data"]
-        self.data[2] = self.data_dict["test_data"]
-
-        # Extract labels and indicators
-        self.indicators = [None] * 3
-        self.labels = [None] * 3
-        for i, dataset in enumerate(self.data):
-            self.indicators[i] = np.vstack([x[0] for x in dataset])
-            self.labels[i] = np.vstack([x[1] for x in dataset])
-
-        training_predictions = np.vstack([[1, 0, 0] for x in self.labels[0]])
-        training_accuracy = Tinker.accuracy(
-            training_predictions, self.labels[0])
-        cv_predictions = np.vstack([[1, 0, 0] for x in self.labels[1]])
-        cv_accuracy = Tinker.accuracy(cv_predictions, self.labels[1])
-        test_predictions = np.vstack([[1, 0, 0] for x in self.labels[2]])
-        test_accuracy = Tinker.accuracy(test_predictions, self.labels[2])
-
-        return [training_accuracy, cv_accuracy, test_accuracy]
-
-    def with_time_series(self, num_days, hidden_layer_size, reg):
+    def with_time_series(self, num_days, hidden_layer_size, reg,
+                         num_examples=-1):
         """Trains/tests using only a time series of the past num_days
 
         Uses the given network design parameters
+        Trains on the first m examples of the training set, to facilitate
+            learning curve analysis (defaults to using all the training set)
 
-        Returns a list of [training_accuracy, cv_accuracy, test_accuracy]
+        Returns a list of [training_error, cv_error, test_error]
         """
         # Load training, cv, and test
         self.data = [None] * 3
         # data[0] = training, data[1] = cv, data[2] = test
-        self.data[0] = self.data_dict["training_data"]
+        self.data[0] = self.data_dict["training_data"][:num_examples]
         self.data[1] = self.data_dict["cv_data"]
         self.data[2] = self.data_dict["test_data"]
 
@@ -151,26 +99,29 @@ class Tinker(object):
         nn.train(self.indicators[0], self.labels[0])
 
         training_predictions = nn.predict(self.indicators[0])[0]
-        training_accuracy = Tinker.accuracy(
+        training_error = Tinker.error(
             training_predictions, self.labels[0])
         cv_predictions = nn.predict(self.indicators[1])
-        cv_accuracy = Tinker.accuracy(cv_predictions, self.labels[1])
+        cv_error = Tinker.error(cv_predictions, self.labels[1])
         test_predictions = nn.predict(self.indicators[2])
-        test_accuracy = Tinker.accuracy(test_predictions, self.labels[2])
+        test_error = Tinker.error(test_predictions, self.labels[2])
 
-        return [training_accuracy, cv_accuracy, test_accuracy]
+        return [training_error, cv_error, test_error]
 
-    def with_indicators(self, hidden_layer_size, reg):
+    def with_indicators(self, hidden_layer_size, reg, num_examples=-1):
         """Trains/tests using only a collection of technical indicators
 
         Uses the given network design parameters
+        Trains on the given number of training examples
 
-        Returns a list of [training_accuracy, cv_accuracy, test_accuracy]
+        Returns (errors, normalizations), where
+            errors = a list of [training_error, cv_error, test_error]
+            normalizations = a list of tuples of (mean, std) for each indicator
         """
         # Load training, cv, and test
         self.data = [None] * 3
         # data[0] = training, data[1] = cv, data[2] = test
-        self.data[0] = self.data_dict["training_data"]
+        self.data[0] = self.data_dict["training_data"][:num_examples]
         self.data[1] = self.data_dict["cv_data"]
         self.data[2] = self.data_dict["test_data"]
 
@@ -242,6 +193,34 @@ class Tinker(object):
                 # Return relative strength index
                 return 100 - 100 / (1 + rs)
 
+            def macd(n):
+                alpha = 0.1
+                ema12 = 1
+                for price in reversed(ts[n:n + 12 + 1]):
+                    ema12 = alpha * (price - ema12) + ema12
+                ema26 = 1
+                for price in reversed(ts[n:n + 26 + 1]):
+                    ema26 = alpha * (price - ema26) + ema26
+
+                return ema12 - ema26
+
+            def macd_hist():
+                alpha = 0.2
+                signal_line = 1  # 9-day EMA of MACD
+                for i in range(9):
+                    signal_line = alpha * (macd(i) - signal_line) + signal_line
+
+                return macd(0) - signal_line
+
+            def adx():
+                """Calculate Average Directional Index"""
+                # Calculate interday changes
+                deltas = ts[:-1] - ts[1:]
+
+                # Calculate ups and downs
+                ups = np.hstack([x if x > 0 else 0 for x in deltas])
+                downs = np.hstack([abs(x) if x < 0 else 0 for x in deltas])
+
             # Slow stochastic % D is the 3-day moving average of stochastic D
             slow_stochastic_d = (stochastic_d(0) + stochastic_d(1) +
                                  stochastic_d(2)) / 3
@@ -253,25 +232,35 @@ class Tinker(object):
 
             return np.array([most_recent_price,
                              five_day_ma,
-                             stochastic_k(0),
+                             # stochastic_k(0),
                              stochastic_d(0),
                              slow_stochastic_d,
-                             momentum(0),
-                             price_rate_of_change(0),
-                             williams_pct_r(0),
-                             disparity(0, 5),
-                             disparity(0, 10),
-                             price_oscillator(0),
-                             commodity_channel_index(0),
-                             relative_strength_index()])
+                             macd_hist(),
+                             # momentum(0),
+                             # price_rate_of_change(0),
+                             # williams_pct_r(0),
+                             # disparity(0, 5),
+                             # disparity(0, 10),
+                             # price_oscillator(0),
+                             # commodity_channel_index(0),
+                             relative_strength_index()
+                             ])
 
         for i, dataset in enumerate(self.indicators):
             self.indicators[i] = np.vstack(
                 [calculate_indicators(x) for x in dataset])
 
+        # Normalize indicators based on training indicators
+        training_means = self.indicators[0].mean(0)
+        training_range = self.indicators[0].ptp(0)
+
+        for i, dataset in enumerate(self.indicators):
+            self.indicators[i] = self.indicators[i] - training_means
+            self.indicators[i] = self.indicators[i] / training_range
+
         # Instantiate network and train
         input_layer_size = self.indicators[0].shape[1]
-        num_outputs = 3
+        num_outputs = 1
         activation_function = soldier.sigmoid
         activation_function_gradient = soldier.sigmoid_gradient
         output_activation_func = soldier.sigmoid
@@ -286,11 +275,12 @@ class Tinker(object):
         nn.train(self.indicators[0], self.labels[0])
 
         training_predictions = nn.predict(self.indicators[0])[0]
-        training_accuracy = Tinker.accuracy(
+        training_error = Tinker.error(
             training_predictions, self.labels[0])
         cv_predictions = nn.predict(self.indicators[1])
-        cv_accuracy = Tinker.accuracy(cv_predictions, self.labels[1])
+        cv_error = Tinker.error(cv_predictions, self.labels[1])
         test_predictions = nn.predict(self.indicators[2])
-        test_accuracy = Tinker.accuracy(test_predictions, self.labels[2])
+        test_error = Tinker.error(test_predictions, self.labels[2])
 
-        return [training_accuracy, cv_accuracy, test_accuracy]
+        return [training_error, cv_error, test_error], \
+            (training_means, training_range)
