@@ -23,12 +23,12 @@ raw_data = spy.get_historical_data('SPY')
 raw_data = tailor.reduce_to_column(raw_data, 'Adj Close')
 
 # Only use the last 200 days' data
-raw_data = raw_data[:200]
+raw_data = raw_data[:50]
 
 # Then construct feature vectors from the data (using last 100 days)
 print("Constructing feature vectors...")
 data = np.array(
-    [tailor.get_partial_feature_vector(raw_data, i, 30)
+    [tailor.get_partial_feature_vector(raw_data, i, 26)
      for i, x in enumerate(raw_data)])
 
 # Drop most recent day b/c you can't have a label from the future :P
@@ -78,6 +78,7 @@ print("Generating Buy/Hold/Sell ratings...")
 prepped_data = np.array(list(map(lambda x: (x[0], simple_rec(x)), data)))
 
 print("Shuffling data...")
+np.random.shuffle(prepped_data)
 train_proportion = 0.6
 cv_proportion = 0.2
 test_proportion = 1 - (train_proportion + cv_proportion)

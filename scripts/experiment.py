@@ -31,7 +31,7 @@ print("\t\tCV error: %.2f%%" % (baseline2_errors[1]))
 
 print("-----------------------------------------------------------")
 print("\t* Using only technical indicators:")
-hidden_layer_size = 120
+hidden_layer_size = 20
 reg = 0
 print("\t\tParameters\n\t\t\tHidden Layer Size: %s" % hidden_layer_size)
 print("\t\t\tregularization: %s" %

@@ -48,8 +48,8 @@ neurons
         options = {'maxiter': 2000, 'disp': False}
         nn_params = np.concatenate((self.theta1.ravel(), self.theta2.ravel()))
         costf = lambda params: self.cost(indicators, labels, params)
-        result = optimize.minimize(costf, nn_params, jac=True, method='TNC',
-                                   options=options)
+        result = optimize.minimize(costf, nn_params, jac=True,
+                                   method='Newton-CG', options=options)
 
         # Extract & save thetas
         self.theta1, self.theta2 = self._extract_thetas(result.x)
@@ -104,9 +104,11 @@ theta1 and theta2
         # Part Ib: Cost Function
 
         # Sum the cost
-        # Cost function for sigmoid activation output
-        cost = np.sum((-1 * labels) * np.log(hypotheses) -
-                      (1 - labels) * np.log(1 - hypotheses))
+        # Cost function for sigmoid classification
+        # cost = np.sum((-1 * labels) * np.log(hypotheses) -
+        #               (1 - labels) * np.log(1 - hypotheses))
+        # Cost function for sigmoid regression
+        cost = 1 / 2 * np.sum((labels - hypotheses) ** 2)
         cost *= (1 / num_examples)
 
         # Add regularization
@@ -195,6 +197,7 @@ of connections
         weights = weights * (2 * epsilon) - epsilon
         return weights
 
+
 def sigmoid(z):
     """Computes the output of the sigmoid function for the input z"""
     return 1.0 / (1.0 + np.exp(-z))
@@ -203,3 +206,13 @@ def sigmoid(z):
 def sigmoid_gradient(z):
     """Computes the gradient of the sigmoid function evaluated at z"""
     return sigmoid(z) * (1 - sigmoid(z))
+
+
+def tanh_sigmoid(z):
+    """Computes the output of the tanh-sigmoid function for the input z"""
+    return np.tanh(z)
+
+
+def tanh_sigmoid_gradient(z):
+    """Computes the gradient of the tanh-sigmoid function evaluated at z"""
+    return 1 - np.tanh(z) ** 2
