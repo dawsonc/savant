@@ -35,3 +35,8 @@ Miscellany
 ----------
 
 + Although many comments refer to objects as "matrices", those objects are actually `numpy.ndarray`s. The phrase "matrix" is used only in the mathematical sense.
+
+License
+=======
+
+Copyright Charles Dawson 2015. Code is posted here for historical & reference purposes.

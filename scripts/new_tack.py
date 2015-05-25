@@ -74,7 +74,7 @@ output_activation_func = soldier.tanh_sigmoid
 output_activation_func_gradient = soldier.tanh_sigmoid_gradient
 
 rmses = []
-for i in range(30):
+for i in range(10):
     nn = soldier.NeuralNetwork(input_layer_size, hidden_layer_size,
                                num_outputs, reg, activation_function,
                                activation_function_gradient,
